@@ -9,8 +9,8 @@ function backup_volume() {
   BACKUP_DIR="${resolved_path:?$BACKUP_DIR}"
 
 
-  [ -d "${BACKUP_DIR}" ] || (echo "Backup directory not found: ${BACKUP_DIR}"; exit 1)
-  docker volume inspect "${VOLUME}" &>/dev/null || (echo "Volume not found: ${VOLUME}"; exit 1)
+  [ -d "${BACKUP_DIR}" ] || (echo "Backup directory not found: ${BACKUP_DIR}"; return 1)
+  docker volume inspect "${VOLUME}" &>/dev/null || (echo "Volume not found: ${VOLUME}"; return 1)
 
   echo Backup volume "${VOLUME}" into "${BACKUP_DIR}/${BACKUP_FILE}.tar.gz"
 
@@ -31,7 +31,7 @@ function restore_volume() {
   resolved_path="$(realpath --quiet "$BACKUP_DIR")"
   BACKUP_DIR="${resolved_path:?$BACKUP_DIR}"
 
-  [ -d "${BACKUP_DIR}" ] || (echo "Backup directory not found: ${BACKUP_DIR}"; exit 1)
+  [ -f "${BACKUP_DIR}/${BACKUP_FILE}.tar.gz" ] || (echo "Backup file not found: ${BACKUP_DIR}/${BACKUP_FILE}"; return 1)
 
   docker run --rm \
     --volume "${VOLUME}:/mount_data" \
